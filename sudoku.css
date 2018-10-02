@@ -199,3 +199,7 @@ html{
 .sudoku-button-ready:hover{
     background-color:#21a240;
 }
+
+.steps{
+    display:inline-block;
+}

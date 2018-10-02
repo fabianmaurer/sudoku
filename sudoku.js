@@ -7,7 +7,7 @@ let insecurity = [];
 let backtrack = false;
 let autostep = false;
 let autosteptime = 200;
-
+let steps=0;
 
 loadSudoku(1);
 initialize();
@@ -109,6 +109,8 @@ function setState(i) {
 }
 
 function step() {
+    steps++;
+    $('.steps').html(steps);
     if (backtrack) {
         $('.sudoku-cell-warning').removeClass('sudoku-cell-warning');
         for (let i = 0; i < insecurity.length; i++) {
@@ -225,6 +227,7 @@ function checkForTrivial() {
 }
 
 function initialize() {
+    steps=0;
     for (let i = 0; i < sudoku.length; i++) {
         possibilities[i] = [];
         guesses[i] = [];
