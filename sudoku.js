@@ -1,30 +1,35 @@
 let sudoku = [];
 let possibilities = [];
 let guesses = [];
-let gradient = ['#A7ECBB','#A7ECAD', '#B2ECA8', '#C2ECA9', '#D2EDAA', '#E2EDAB','#EDE9AB', '#EDDBAC', '#EECCAD', '#EEBEAE', '#EEB1AF', '#EEB0BC', '#EFB1CB', '#EFB1DA','#EFB2E8','#E9B3EF','#DCB4F0','#CFB5F0','#C2B6F0','#B6B8F0'];
+let gradient = ['#A7ECBB', '#A7ECAD', '#B2ECA8', '#C2ECA9', '#D2EDAA', '#E2EDAB', '#EDE9AB', '#EDDBAC', '#EECCAD', '#EEBEAE', '#EEB1AF', '#EEB0BC', '#EFB1CB', '#EFB1DA', '#EFB2E8', '#E9B3EF', '#DCB4F0', '#CFB5F0', '#C2B6F0', '#B6B8F0'];
 let currentInsecurity = 0;
 let insecurity = [];
 let backtrack = false;
 let autostep = false;
 let autosteptime = 200;
-let steps=0;
+let steps = 0;
+let overdrive = 0;
+let overdriveMap=[0,1,2,3,4,5,10,15,20,30,50,100];
+let performanceMode=false;
 
 loadSudoku(1);
 initialize();
 
 $('.load').click(function () {
     autostep = false;
+    overdrive=0;
+    performanceMode=false;
     loadSudoku(Math.floor(Math.random() * 5));
     initialize();
-    backtrack=false;
-    currentInsecurity=0;
+    backtrack = false;
+    currentInsecurity = 0;
     setState(1);
 })
 
 $('.init').click(function () {
     checkAllPossibilities();
     setState(2);
-    autostep=false;
+    autostep = false;
 })
 
 $('.step').click(function () {
@@ -44,29 +49,40 @@ $('.autostep').click(function () {
 
 $('.faster').click(function () {
     autosteptime *= 0.7;
-    if(autosteptime<20){
-        console.log('minimum step time reached')
-        autosteptime=16.47086;
-    }else console.log('step time:'+autosteptime)
+    if (autosteptime < 20) {
+        overdrive=Math.min(overdriveMap.length-1,overdrive+1);
+        if(overdrive>3) performanceMode=true;
+        console.log('Minimum step time reached. Overdrive level:' + overdriveMap[overdrive])
+        autosteptime = 16.47086;
+    } else console.log('step time:' + autosteptime)
 })
 
 $('.slower').click(function () {
-    autosteptime /= 0.7;
-    console.log('step time:'+autosteptime)
+    if (overdrive > 0) {
+        overdrive--;
+        if(overdrive<4) performanceMode=false;
+        console.log('Overdrive level:' + overdriveMap[overdrive])
+    } else {
+        autosteptime /= 0.7;
+        console.log('step time:' + autosteptime)
+    }
 })
 
 function autoloop() {
     step();
-    if(autosteptime>20){
-        if (autostep) setTimeout(function(){
-            if(autostep) autoloop()
+    for (let i = 0; i < overdriveMap[overdrive]; i++) {
+        step();
+    }
+    if (autosteptime > 20) {
+        if (autostep) setTimeout(function () {
+            if (autostep) autoloop()
         }, autosteptime);
-    }else{
-        if (autostep) requestAnimationFrame(function(){
-            if(autostep) autoloop()
+    } else {
+        if (autostep) requestAnimationFrame(function () {
+            if (autostep) autoloop()
         });
     }
-    
+
 }
 
 function setState(i) {
@@ -110,16 +126,27 @@ function setState(i) {
 
 function step() {
     steps++;
-    $('.steps').html(steps);
+    if(performanceMode){
+        if(steps%(overdriveMap[overdrive]*10)<overdriveMap[overdrive]){
+            $('.steps').html(steps);
+        }
+    }else{
+        $('.steps').html(steps);
+    }
+    
     if (backtrack) {
         $('.sudoku-cell-warning').removeClass('sudoku-cell-warning');
         for (let i = 0; i < insecurity.length; i++) {
             if (insecurity[i] == currentInsecurity) {
                 sudoku[i] = 0;
                 $('.sudoku-cell-' + i).empty();
-                let $possibilities = $(document.createElement('div'));
-                $possibilities.attr('class', 'sudoku-cell-possibilities');
-                $('.sudoku-cell-' + i).append($possibilities)
+                if(!performanceMode){
+                    let $possibilities = $(document.createElement('div'));
+                    $possibilities.attr('class', 'sudoku-cell-possibilities');
+                    $('.sudoku-cell-' + i).append($possibilities)
+                }
+                
+                
                 $('.sudoku-cell-' + i).css('background-color', '');
 
             }
@@ -140,6 +167,7 @@ function step() {
     }
     cell = getBestCell();
     if (cell == null) {
+        $('.steps').html(steps);
         autostep = false;
         return;
     }
@@ -187,7 +215,7 @@ function solveCell(index, value, insecure) {
         checkPossibilities(index);
 
     }
-    if (currentInsecurity > 0) $('.sudoku-cell-' + index).append('<div class="sudoku-cell-insecurity">' + romanize(currentInsecurity) + '</div>');
+    if (!performanceMode && currentInsecurity > 0) $('.sudoku-cell-' + index).append('<div class="sudoku-cell-insecurity">' + romanize(currentInsecurity) + '</div>');
     sudoku[index] = value;
     insecurity[index] = currentInsecurity;
     applyInfluence(index, value);
@@ -227,14 +255,14 @@ function checkForTrivial() {
 }
 
 function initialize() {
-    steps=0;
+    steps = 0;
     for (let i = 0; i < sudoku.length; i++) {
         possibilities[i] = [];
         guesses[i] = [];
         insecurity[i] = 0;
-        for (let j = 0; j < 10; j++){
+        for (let j = 0; j < 10; j++) {
             guesses[i][j] = false;
-            possibilities[i][j]=false;
+            possibilities[i][j] = false;
         }
     }
 }
@@ -254,7 +282,7 @@ function applyInfluence(index, value) {
             possibilities[blockX * 3 + blockY * 27 + i + j * 9][value] = false;
         }
     }
-    updatePossibilitiesInView();
+    if (!performanceMode) updatePossibilitiesInView();
 }
 
 function checkPossibilities(index) {
@@ -295,10 +323,12 @@ function checkAllPossibilities() {
     for (let i = 0; i < sudoku.length; i++) {
         if (sudoku[i] == 0) {
             possibilities[i] = getCellPossibilities(i);
-            $('.sudoku-cell-' + i).find('.sudoku-cell-possibilities').empty();
-            for (let j = 1; j < possibilities[i].length; j++) {
-                if (possibilities[i][j]) {
-                    $('.sudoku-cell-' + i).find('.sudoku-cell-possibilities').append('<div class="sudoku-cell-possibility">' + j + '</div>');
+            if (!performanceMode) {
+                $('.sudoku-cell-' + i).find('.sudoku-cell-possibilities').empty();
+                for (let j = 1; j < possibilities[i].length; j++) {
+                    if (possibilities[i][j]) {
+                        $('.sudoku-cell-' + i).find('.sudoku-cell-possibilities').append('<div class="sudoku-cell-possibility">' + j + '</div>');
+                    }
                 }
             }
         }
