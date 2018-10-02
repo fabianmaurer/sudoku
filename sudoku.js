@@ -1,19 +1,20 @@
 let sudoku = [];
 let possibilities = [];
 let guesses = [];
-let gradient = ['#93ec8e', '#8eebab', '#8febcd', '#90e6ea', '#91c5ea', '#92a5e9', '#9f92e9', '#bf93e8', '#de94e8', '#e795d3', '#e796b5', '#e79798'];
+let gradient = ['#A7ECBB','#A7ECAD', '#B2ECA8', '#C2ECA9', '#D2EDAA', '#E2EDAB','#EDE9AB', '#EDDBAC', '#EECCAD', '#EEBEAE', '#EEB1AF', '#EEB0BC', '#EFB1CB', '#EFB1DA','#EFB2E8','#E9B3EF','#DCB4F0','#CFB5F0','#C2B6F0','#B6B8F0'];
 let currentInsecurity = 0;
 let insecurity = [];
 let backtrack = false;
 let autostep = false;
 let autosteptime = 200;
 
+
 loadSudoku(1);
 initialize();
 
 $('.load').click(function () {
     autostep = false;
-    loadSudoku(Math.round(Math.random() * 2000));
+    loadSudoku(Math.floor(Math.random() * 5));
     initialize();
     backtrack=false;
     currentInsecurity=0;
@@ -43,17 +44,29 @@ $('.autostep').click(function () {
 
 $('.faster').click(function () {
     autosteptime *= 0.7;
+    if(autosteptime<20){
+        console.log('minimum step time reached')
+        autosteptime=16.47086;
+    }else console.log('step time:'+autosteptime)
 })
 
 $('.slower').click(function () {
     autosteptime /= 0.7;
+    console.log('step time:'+autosteptime)
 })
 
 function autoloop() {
     step();
-    if (autostep) setTimeout(function(){
-        if(autostep) autoloop()
-    }, autosteptime);
+    if(autosteptime>20){
+        if (autostep) setTimeout(function(){
+            if(autostep) autoloop()
+        }, autosteptime);
+    }else{
+        if (autostep) requestAnimationFrame(function(){
+            if(autostep) autoloop()
+        });
+    }
+    
 }
 
 function setState(i) {
