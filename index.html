@@ -6,21 +6,30 @@
 
     </td>
     <td>
-        <button class="init">
+        <button class="sudoku-button load sudoku-button-done">
+            load a new sudoku
+        </button><br>
+        <button class="sudoku-button init sudoku-button-ready">
             initialize
-        </button>
-        <button class="step">
+        </button><br>
+        <button class="sudoku-button step">
             step
         </button>
-        <button class="autostep">
+        <div style="position:relative;display:inline-block">
+        <div class="sudoku-button autostep">
             autostep
-        </button>
-        <button class="faster">
-                faster
-            </button>
-            <button class="slower">
+            
+        </div>
+        <div class="autostep-controls">
+                <div class="sudoku-button faster sudoku-button-ready">
+                    faster
+                </div>
+                <div class="sudoku-button slower sudoku-button-ready">
                     slower
-                </button>
+                </div>
+        </div>
+    </div>
+        
     </td>
 </table>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="

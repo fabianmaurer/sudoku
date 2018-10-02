@@ -49,6 +49,8 @@ table {
 
 html{
     font-family:Roboto, Arial, sans-serif;
+    -moz-user-select: none;
+    user-select:none;
 }
 
 .sudoku-cell{
@@ -116,4 +118,84 @@ html{
 
 .red-text{
     color:#f00;
+}
+
+.sudoku-button{
+    font-family:Roboto, Arial, sans-serif;
+    padding:12px;
+    background:#ccc;
+    border:1px solid #ddd;
+    display:inline-block;
+    margin:4px;
+    font-size:14px;
+    text-align:center;
+    pointer-events:none;
+    cursor:pointer;
+    transition:all 0.2s ease;
+}
+
+.load{
+    width:200px;
+}
+
+.init{
+    width:200px;
+}
+
+.step{
+    width:94px;
+}
+
+.autostep{
+    width:94px;
+    position: relative;
+    box-sizing: border-box;
+    z-index:1;
+}
+
+.autostep-controls{
+    position:absolute;
+    left:0;
+    padding:4px;
+    bottom:0;
+    transition:all 0.2s ease;
+    white-space: nowrap;
+}
+
+.autostep-controls.activated{
+    bottom:-26px;
+}
+
+
+.faster,.slower{
+    width:50%;
+    padding:6px;
+    margin:0;
+    font-size:12px;
+    box-sizing:border-box;
+    display:inline-block;
+}
+
+.slower{
+    margin-left:-4px;
+}
+
+.sudoku-button-done{
+    background-color:#5d9cec;
+    color:white;
+    pointer-events:auto;
+}
+
+.sudoku-button-done:hover{
+    background-color:#3b87e8;
+}
+
+.sudoku-button-ready{
+    background-color:#27c24c;
+    color:white;
+    pointer-events:auto;
+}
+
+.sudoku-button-ready:hover{
+    background-color:#21a240;
 }
